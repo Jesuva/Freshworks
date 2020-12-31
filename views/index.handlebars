@@ -1,0 +1,210 @@
+<div class="container">
+    <div class="row">
+        <div class="col-6">
+            <button type="button" class="btn btn-success" id="addData">Add Data</button>
+            <button type="button" class="btn btn-primary" id="read">Read Data</button>
+            <button type="button" class="btn btn-danger" id="delete">Delete Data</button>
+        </div>
+        <div class="col-6">
+            <h5>{{result}}</h5>
+            <h3 id="requestedData"></h3>
+            {{!-- <iframe src="/dataFile/data-storage.json"></iframe> --}}
+        </div>
+    </div>
+</div>
+<div class="modal" tabindex="-1" role="dialog" id ="addDataModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">ADD Data</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form name="addForm" id="addForm">
+          <div class="mb-3">
+            <label for="userKey" class="col-form-label">Key</label>
+            <input type="text" class="form-control" id="userKey">
+          </div>
+          {{!-- <div class="mb-3">
+            <div id="keyValuePair">
+              <div class="row">
+                <div class="col-6">
+                  <input type="text" id="key" class="form-control" />
+                </div>
+                <div class="col-6">
+                  <input type="text" id="value" class="form-control"/>
+                </div>
+              </div>
+            </div>
+            <div class="row" style="padding:5px">
+                <div class="col-12 text-center">
+                  <button type="button" class="btn btn-primary" id="addPair">+</button>
+                </div>
+            </div>
+          </div> --}}
+          <textarea class="form-control"></textarea>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" id="saveData">Save changes</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" tabindex="-1" role="dialog" id ="readDataModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Read Data</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="mb-3">
+            <label for="userKey" class="col-form-label">Key</label>
+            <input type="text" class="form-control" id="readUserKey" autocomplete="off">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" id="readData">Read</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" tabindex="-1" role="dialog" id ="deleteDataModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Delete Data</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="mb-3">
+            <label for="userKey" class="col-form-label">Key</label>
+            <input type="text" class="form-control" id="deleteUserKey" autocomplete="off">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" id="deleteData">Delete</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+$('#addData').click(function(e){
+    e.preventDefault();
+    $('#addDataModal').modal('show');
+})
+
+$('#read').click(function(e){
+    e.preventDefault();
+    $('#readDataModal').modal('show');
+
+})
+
+$('#delete').click(function(e){
+    e.preventDefault();
+    $('#deleteDataModal').modal('show');
+
+})
+
+$('#saveData').click(function(){
+    let userKey = $('#userKey').val();
+    let userData = $('#userData').val();
+    let toSend = userKey+"="+userData;
+    $.ajax({
+        type:"POST",
+        url: "http://localhost:3000/add",
+        data: toSend,
+        statusCode:{
+            409:function(){
+                $('#userKey').val('')
+                Swal.fire("Key Already Exists");
+            },
+            200:function(){
+                $('#addDataModal').modal('hide');
+                $('#userKey').val('')
+                Swal.fire("Data Saved");
+
+            }
+        }
+
+    });
+})
+
+$('#readData').click(function(){
+    let userKey = $('#readUserKey').val()
+    $.ajax({
+        type:"GET",
+        url: "http://localhost:3000/read/"+userKey,
+        dataType: 'json',
+        statusCode:{
+            409:function(){
+                $('#deleteUserKey').val('')
+                Swal.fire("Key Not Found")
+            },
+            200:function(data){
+                $('#readDataModal').modal('hide')
+                $('#readUserKey').val('')
+                $('#requestedData').html(JSON.stringify(data.msg))
+
+            }
+        }
+
+    })
+})
+
+$('#deleteData').click(function(){
+    let userKey = $('#deleteUserKey').val()    
+    $.ajax({
+        type: 'DELETE',
+        url: "http://localhost:3000/delete/"+userKey,
+        statusCode:{
+            409:function(){
+                Swal.fire("Key Not Found");
+            },
+            200:function(){
+                $('#deleteDataModal').modal('hide')
+                $('#deleteUserKey').val('')
+                Swal.fire("Data Deleted")
+            }
+        }
+    })
+});
+
+
+{{!-- $('#addPair').click(function(){
+  $('#keyValuePair').append(`<div class="mb-3">
+              <div class="row">
+                <div class="col-6">
+                  <input type="text" id="key" placeholder="key" class="form-control" />
+                </div>
+                <div class="col-6">
+                  <input type="text" id="value" placeholder="value" class="form-control"/>
+                </div>
+              </div>`)
+  convertJson()
+});
+
+function convertJson(){
+  var formData = JSON.stringify($("#addForm").serializeArray());
+  console.log(formData)
+} --}}
+
+
+</script>

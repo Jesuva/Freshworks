@@ -1,0 +1,67 @@
+body {
+  padding: 10px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+header.header {
+  width: 100%;
+  height: 80px;
+  background-color: #fff;
+  user-select: none;
+}
+header.header .navigation {
+  width: 100%;
+  height: 100%;
+}
+header.header .navigation .header {
+  width: 400px;
+  height: 100%;
+  float: left;
+  display: inline-block;
+}
+header.header .navigation .header h1.title {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5em;
+  font-weight: normal;
+  font-family: Arial;
+}
+header.header .navigation ul.nav {
+  width: auto;
+  height: 100%;
+  float: right;
+  display: inline-block;
+}
+header.header .navigation ul.nav li.item {
+  width: 100px;
+  height: 100%;
+  list-style: none;
+  float: right;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1em;
+  font-family: Arial;
+  font-weight: normal;
+  transition: 0.1s;
+  border-bottom: 2px solid #fff;
+}
+header.header .navigation ul.nav li.item:hover {
+  border-bottom: 2px solid orange;
+  background: #fafafa;
+  cursor: pointer;
+}
+header.header .navigation ul.nav li.item a {
+  color: #000;
+  text-decoration: none;
+}
+
+/* cards */
+
