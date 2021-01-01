@@ -1,14 +1,24 @@
 const fs = require('fs');
-const stats = fs.statSync('public/dataFile/data-storage.json');
-const fileSize = stats.size/1000000.0;
+
+opsys = process.platform
+ if (opsys=="win32"||opsys=="win64"){
+     var cDir = 'D:\\users\\data-storage.json'
+ }
+ else if(opsys=='darwin'||opsys=='linux'){
+     var cDir = '/users/data-storage.json'
+ }
+
+let stats = fs.statSync(cDir);
+let {size} = stats;
+let i = Math.floor(Math.log(size) / Math.log(1024));
+const s = (size / Math.pow(1024, i)).toFixed(2) * 1 + ' ' + ['B', 'KB', 'MB'][i];
 
 
 exports.index = function(req, res, next){
-    
     res.render('index',
     {
         title:'Home',
-        result: fileSize,
+        result: s,
         
     });
 }
@@ -18,27 +28,26 @@ exports.addData = function(req, res, next){
     let thisData = req.body
     for(var i =0; i<existData.length;i++){
         if(Object.keys(existData[i])[0] === Object.keys(thisData)[0]){
-            return res.status(409).send({error: true, msg: 'username already exist'})
+            return res.status(409).send({error: true, msg: 'User Key Already Exist'})
         }
     }
     existData.push(thisData)
     saveUserData(existData);
-    res.status(200).send({success: true, msg: 'User data added successfully'})
+    let k = Object.keys(thisData)[0]
+    res.status(200).send({success: true, msg: 'User Data Added successfully',timerDeleteKey:k})
 }
 
 exports.readData = function(req, res, next){
     const existData = getUserData()
     const thisKey = req.params.id
     const thisData = req.body
-    // const findExist = existData.find(userKey=>userKey.key === thisKey)
-
     for(var i =0; i<existData.length;i++){
         if(Object.keys(existData[i])[0] === thisKey){
-            return res.status(200).send({msg:existData[i]})
+            return res.status(200).send({msg:existData[i],result:s})
         }
     }
 
-    return res.status(409).send({msg:"not found"})
+    return res.status(409).send({msg:"Key Not Found"})
 }
 
 exports.deleteData = function(req, res, next){
@@ -49,11 +58,11 @@ exports.deleteData = function(req, res, next){
     if(findExist){
         const deleteData = existData.filter( userKey => Object.keys(userKey)[0] !== thisKey )
         saveUserData(deleteData)
-        return res.status(200).send({msg:"Record Deleted!"})
+        return res.status(200).send({msg:"Record Deleted!",result:s})
 
     }
     else{
-        return res.status(409).send({msg:"not found"})
+        return res.status(409).send({msg:"Not Found"})
     }
 
 }
@@ -61,11 +70,11 @@ exports.deleteData = function(req, res, next){
 
 const saveUserData = (data) => {
     const stringifyData = JSON.stringify(data)
-    fs.writeFileSync('public/dataFile/data-storage.json', stringifyData)
+    fs.writeFileSync(cDir, stringifyData)
 }
 
 const getUserData = () => {
-    const jsonData = fs.readFileSync('public/dataFile/data-storage.json')
+    const jsonData = fs.readFileSync(cDir)
     return JSON.parse(jsonData)    
 }
 

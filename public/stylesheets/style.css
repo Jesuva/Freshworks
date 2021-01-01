@@ -63,5 +63,8 @@ header.header .navigation ul.nav li.item a {
   text-decoration: none;
 }
 
+.row{
+  padding-top: 30px;
+}
 /* cards */
 

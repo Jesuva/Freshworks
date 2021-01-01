@@ -1,14 +1,23 @@
 <div class="container">
     <div class="row">
-        <div class="col-6">
+        <div class="col-4">
             <button type="button" class="btn btn-success" id="addData">Add Data</button>
-            <button type="button" class="btn btn-primary" id="read">Read Data</button>
+        </div>
+        <div class="col-4">
+        <button type="button" class="btn btn-primary" id="read">Read Data</button>
+        </div>
+        <div class="col-4">
             <button type="button" class="btn btn-danger" id="delete">Delete Data</button>
         </div>
-        <div class="col-6">
+    </div>
+        <div class="row">
+          <div class="col-4 text-center">
+            
+          </div>   
+          <div class="col-4 text-center" style="border:1px outset blue;padding:20px">
             <h5>{{result}}</h5>
             <h3 id="requestedData"></h3>
-            {{!-- <iframe src="/dataFile/data-storage.json"></iframe> --}}
+          </div>         
         </div>
     </div>
 </div>
@@ -25,7 +34,7 @@
         <form name="addForm" id="addForm">
           <div class="mb-3">
             <label for="userKey" class="col-form-label">Key</label>
-            <input type="text" class="form-control" id="userKey">
+            <input type="text" class="form-control" id="userKey" autocomplete="off" required>
           </div>
           {{!-- <div class="mb-3">
             <div id="keyValuePair">
@@ -44,7 +53,10 @@
                 </div>
             </div>
           </div> --}}
-          <textarea class="form-control"></textarea>
+          <label for="userValue" class="col-form-label">Value</label>
+          <textarea class="form-control" id="userData" required></textarea>
+          <label for="timeToLive" class="col-form-label">Time to Live<span><small>(in seconds)</small></span></label>
+          <input type="text" id="timeToLive" class="form-control" autocomplete="off">
         </form>
       </div>
       <div class="modal-footer">
@@ -68,7 +80,7 @@
         <form>
           <div class="mb-3">
             <label for="userKey" class="col-form-label">Key</label>
-            <input type="text" class="form-control" id="readUserKey" autocomplete="off">
+            <input type="text" class="form-control" id="readUserKey" autocomplete="off" required>
           </div>
         </form>
       </div>
@@ -93,7 +105,7 @@
         <form>
           <div class="mb-3">
             <label for="userKey" class="col-form-label">Key</label>
-            <input type="text" class="form-control" id="deleteUserKey" autocomplete="off">
+            <input type="text" class="form-control" id="deleteUserKey" autocomplete="off" required >
           </div>
         </form>
       </div>
@@ -123,9 +135,17 @@ $('#delete').click(function(e){
 
 })
 
+$('#userKey').keyup(function(){
+  if ($('#userKey').val().length>32){
+    $('#userKey').val($('#userKey').val().slice(0,-1))
+    alert("Key must be a string capped at 32 Chars")
+  }
+})
+
 $('#saveData').click(function(){
     let userKey = $('#userKey').val();
     let userData = $('#userData').val();
+    let userKeyTimer = $('#timeToLive').val();
     let toSend = userKey+"="+userData;
     $.ajax({
         type:"POST",
@@ -139,6 +159,9 @@ $('#saveData').click(function(){
             200:function(){
                 $('#addDataModal').modal('hide');
                 $('#userKey').val('')
+                $('#deleteUserKey').val(userKey)
+                $('#readUserKey').val(userKey)
+                setTimerKey(userKeyTimer)
                 Swal.fire("Data Saved");
 
             }
@@ -181,30 +204,25 @@ $('#deleteData').click(function(){
             200:function(){
                 $('#deleteDataModal').modal('hide')
                 $('#deleteUserKey').val('')
-                Swal.fire("Data Deleted")
+                $('#readUserKey').val('')
+                Swal.fire({
+              title: "Deleted!",
+              text: "Your Data has been deleted.",
+              type: "success",
+              showConfirmButton:false,
+              });
+              setTimeout(function(){
+                location.reload(true)
+              },1000)
             }
         }
     })
 });
 
-
-{{!-- $('#addPair').click(function(){
-  $('#keyValuePair').append(`<div class="mb-3">
-              <div class="row">
-                <div class="col-6">
-                  <input type="text" id="key" placeholder="key" class="form-control" />
-                </div>
-                <div class="col-6">
-                  <input type="text" id="value" placeholder="value" class="form-control"/>
-                </div>
-              </div>`)
-  convertJson()
-});
-
-function convertJson(){
-  var formData = JSON.stringify($("#addForm").serializeArray());
-  console.log(formData)
-} --}}
-
-
+function setTimerKey(k){
+  setTimeout(function() {
+        $('#deleteUserKey').val('')
+        $('#readUserKey').val('')
+        }, k*1000);
+}
 </script>
