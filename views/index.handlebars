@@ -15,7 +15,7 @@
             
           </div>   
           <div class="col-4 text-center" style="border:1px outset blue;padding:20px">
-            <h5>{{result}}</h5>
+            <span><h4>Size of the File</h4><h5 id="nowSize">{{result}}</h5></span>
             <h3 id="requestedData"></h3>
           </div>         
         </div>
@@ -156,14 +156,21 @@ $('#saveData').click(function(){
                 $('#userKey').val('')
                 Swal.fire("Key Already Exists");
             },
-            200:function(){
+            200:function(data){
                 $('#addDataModal').modal('hide');
                 $('#userKey').val('')
                 $('#deleteUserKey').val(userKey)
                 $('#readUserKey').val(userKey)
                 setTimerKey(userKeyTimer)
-                Swal.fire("Data Saved");
-
+                $('#nowSize').html(data.size)
+                if(data.dangerFlag==1){
+                  Swal.fire("Data Saved,File is almost Full,Please Delete Some Data");
+                  $('#addData').prop("disable",true)
+                  $('#deleteDataModal').modal('show');
+                }
+                else{
+                  Swal.fire("Data Saved");
+                }
             }
         }
 
@@ -205,6 +212,7 @@ $('#deleteData').click(function(){
                 $('#deleteDataModal').modal('hide')
                 $('#deleteUserKey').val('')
                 $('#readUserKey').val('')
+                $('#addData').prop("disabled",false)
                 Swal.fire({
               title: "Deleted!",
               text: "Your Data has been deleted.",
@@ -225,4 +233,5 @@ function setTimerKey(k){
         $('#readUserKey').val('')
         }, k*1000);
 }
+
 </script>
